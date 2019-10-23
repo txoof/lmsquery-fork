@@ -1,11 +1,16 @@
 from lmsquery import const
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+#try:
+#    from setuptools import setup
+#except ImportError:
+#    from distutils.core import setup
+import setuptools
 
-setup(
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
+
+setuptools.setup(
     name="LMSQuery-fork",
     version=const.LMSQUERY_VERSION,
     author="Robert Einhausi, Aaron Ciuffo",
@@ -14,11 +19,10 @@ setup(
     license="MIT",
     keywords="logitech media server lms",
     url="https://github.com/txoof/lmsquery",
-    packages=['lmsquery'],
+    packages=setuptools.find_packages(),
     install_requires=['requests'],
-    long_description="This library provides easy to use functions to send \
-                      queries to a Logitech Media Server \
-                      (https://github.com/Logitech/slimserver)",
+    long_description = long_description,
+    long_description_content_type = "text/markdown",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
@@ -30,5 +34,5 @@ setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    python_requries='>3.2'
+    python_requries='>3.6'
 )
