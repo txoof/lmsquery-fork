@@ -31,10 +31,16 @@ import socket
 
 
 def scanLMS():
-    '''
-    Search local network for Logitech Media Servers
+    '''Search local network for Logitech Media Servers
+
     Based on netdisco/lms.py by cxlwill - https://github.com/cxlwill
-    returns list of dictionaries containing LMS servers ip and listen ports
+
+    Args:
+      None
+
+    Returns:
+      list: Dictionary of LMS Server IP and listen ports
+
     '''
     lmsIP  = '<broadcast>'
     lmsPort = 3483
