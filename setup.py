@@ -1,18 +1,19 @@
 from lmsquery import const
+
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
 
 setup(
-    name="LMSQuery",
+    name="LMSQuery-fork",
     version=const.LMSQUERY_VERSION,
-    author="Robert Einhaus",
-    author_email="robert@einhaus.info",
+    author="Robert Einhausi, Aaron Ciuffo",
+    author_email="aaron.ciuffo@gmail.com",
     description=("Query library for Logitech Media Server"),
     license="MIT",
     keywords="logitech media server lms",
-    url="https://github.com/roberteinhaus/lmsquery",
+    url="https://github.com/txoof/lmsquery",
     packages=['lmsquery'],
     install_requires=['requests'],
     long_description="This library provides easy to use functions to send \
@@ -29,4 +30,5 @@ setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
+    python_requries='>3.2'
 )
