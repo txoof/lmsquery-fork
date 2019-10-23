@@ -96,17 +96,26 @@ class LMSQuery(object):
         return response
 
     def now_playing(self, player_id=''):
+        '''query server for now playing information for a specific player
+
+        Args:
+          player_id: (str) hexidecimal unique identifier for a player
+            default - self.player_id
+
+        Returns:
+          dict: now playing information
+
+          currently playing track including following information:
+            * album
+            * artist
+            * artwork_url (if available)
+            * duration (seconds)
+            * genre
+            * coverid
+            * id
+            * title
         '''
-        returns currently playing track including following information:
-          * album
-          * artist
-          * artwork_url (if available)
-          * duration (seconds)
-          * genre
-          * coverid
-          * id
-          * title
-        '''
+
         if not player_id:
             player_id = self.player_id
         now_playing_info ={}
