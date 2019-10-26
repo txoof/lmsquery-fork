@@ -4,7 +4,7 @@ import json
 import datetime
 
 from . import const
-
+from . import scanLMS
 
 class LMSQuery(object):
     '''Create an LMSQuery object that allows easy querying of LMS Servers
