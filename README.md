@@ -7,7 +7,7 @@ https://github.com/roberteinhaus/lmsquery
 This library provides easy to use functions to send queries to a Logitech Media Server (https://github.com/Logitech/slimserver)
 
 ### Installation
-    pip install lmsquery
+    pip install lmsquery-fork
 
 ### Usage Example
     import lmsquery
