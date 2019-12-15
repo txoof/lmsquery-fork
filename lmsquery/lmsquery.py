@@ -7,39 +7,17 @@ from . import const
 from . import scanLMS
 
 class LMSQuery(object):
-    '''Create an LMSQuery object that allows easy querying of LMS Servers
-    
-    '''
-    def __init__(self, host=None, port=None, player_id="", lms_servers=[]):
-        '''
-        
-        Args:
-            host: (str) Logitech Media Server host name or ip address to use for queries
-            port: (int) Port number for LMS Server
-            player_id: (str) id (in hex) of one player; default is an empty string
-                68:5b:35:b5:97:bf
-            lms_servers: (list of dict) list of available LMS servers
-                [{'host': 'name1/ip1', 'port': 9000}, {'host': 'name2/ip2', 'port': 9001}] 
-                if no servers are specified LMSQuery will attempt to scan the local network
-                for scanners using scanLMS.scanLMS() 
-                if no servers are found, this is set to [{'host': '127.0.0.1', 'port': 9000}]
-                
-        Attributes:
-            server_url: (string) http://host:port/jasonrpc.js - url for making JSON requests
-        '''
+    def __init__(self, host=None, port=None, player_name=None, player_id=None, lms_servers=[]):
         self.lms_servers = lms_servers
         self.host = host
         self.port = port
         self.server_base_url = f'http://{self.host}:{self.port}/'
         self.server_url = f'{self.server_base_url}jsonrpc.js'
         self.player_id = player_id
+        self.player_name = player_name
 
     @property
     def lms_servers(self):
-        ''':list: of :dict: of available LMS servers
-            [{'host': 'name1/ip1', 'port': 9000}, {'host': 'name2/ip2', 'port': 9001}]
-            
-            list is set using scanLMS.scanLMS() if no servers are provided'''
         return self._lms_servers
     
     @lms_servers.setter
@@ -49,13 +27,34 @@ class LMSQuery(object):
         if not lms_servers:
             lms_servers.append({'host': const.LMS_HOST, 'port': const.LMS_PORT})
         self._lms_servers = lms_servers
+    
+    @property
+    def player_name(self):
+        '''set the human readable player name
+            also attempt to find a matching playerid and set that 
         
+        Args:
+            player_name(`str`): string matching human readable player name
+            
+        Sets:
+            player_name
+            player_id(`str`): mac address of player (if found)
+        '''
+        return self._player_name
+    
+    @player_name.setter
+    def player_name(self, player_name):
+        if player_name:
+            self._player_name = player_name
+            for p in self.get_players():
+                if 'name' in p and 'playerid' in p:
+                    if p['name'] == player_name:
+                        self.player_id = p['playerid']
+        else:
+            self._player_name = None
+    
     @property
     def host(self):
-        ''':str: hostname or ip address of LMS server to use
-            if none is provided, the first LMS server in self.lms_servers is used
-        
-        '''
         return self._host
     
     @host.setter
@@ -66,11 +65,6 @@ class LMSQuery(object):
             
     @property
     def port(self):
-        ''':str: port of LMS server to use
-            if none is provided, the first LMS server in self.lms_servers is used
-   
-        '''
-        
         return self._port
     
     @port.setter
@@ -78,7 +72,8 @@ class LMSQuery(object):
         if not port:
             port = self.lms_servers[0]['port']
         self._port = port
-
+        
+        
 ###############################################################################
 # Generic query
 ###############################################################################s
@@ -161,26 +156,17 @@ class LMSQuery(object):
         return response
 
     def now_playing(self, player_id=''):
-        '''query server for now playing information for a specific player
-
-        Args:
-          player_id: (str) hexidecimal unique identifier for a player
-            default - self.player_id
-
-        Returns:
-          dict: now playing information
-
-          currently playing track including following information:
-            * album
-            * artist
-            * artwork_url (if available)
-            * duration (seconds)
-            * genre
-            * coverid
-            * id
-            * title
         '''
-
+        returns currently playing track including following information:
+          * album
+          * artist
+          * artwork_url (if available)
+          * duration (seconds)
+          * genre
+          * coverid
+          * id
+          * title
+        '''
         if not player_id:
             player_id = self.player_id
         now_playing_info ={}
