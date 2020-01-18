@@ -25,6 +25,7 @@ class LMSQuery(object):
         if not lms_servers:
             lms_servers = scanLMS.scanLMS()
         if not lms_servers:
+            logging.warning('no servers found on local network')
             lms_servers.append({'host': const.LMS_HOST, 'port': const.LMS_PORT})
         self._lms_servers = lms_servers
     
