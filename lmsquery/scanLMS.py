@@ -23,7 +23,8 @@
 
 
 import socket
-
+import logging
+from . import const
 
 
 
@@ -43,9 +44,13 @@ def scanLMS():
 
     '''
     lmsIP  = '<broadcast>'
-    lmsPort = 3483
-    lmsMsg = b'eJSON\0'
-    lmsTimeout = 2
+#     lmsPort = 3483
+    lmsPort = const.LMS_BRDCST_PORT
+#     lmsMsg = b'eJSON\0'
+    lmsMsg = const.LMS_BRDCST_MSG
+#     lmsTimeout = 2
+    # search for servers unitl timeout expires
+    lmsTimeout = const.LMS_BRDCST_TIMEOUT
     
     entries = []
     
@@ -53,6 +58,7 @@ def scanLMS():
     mySocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     mySocket.settimeout(lmsTimeout)
     mySocket.bind(('', 0))
+    logging.debug(f'searching for servers for {lmsTimeout} seconds')
     try:
         mySocket.sendto(lmsMsg, (lmsIP, lmsPort))
         while True: # loop until the timeout expires
@@ -64,10 +70,14 @@ def scanLMS():
                         position = data.find(b'N')
                         length = int(data[position+1:position+2].hex())
                         port = int(data[position+2:position+2+length])
-                    entries.append({'host': address[0], 'port': port})
-
+                        entries.append({'host': address[0], 'port': port})
+                        
             except socket.timeout:
-                break
+                if len(entries) < 1:
+                    logging.warning(f'server search timed out after {lmsTimeout} seconds with no results')
+                break            
+            except OSError as e:
+                logging.error(f'error opening socket: {e}')
     finally:
         mySocket.close()
     return(entries)
