@@ -6,6 +6,8 @@ import datetime
 from . import const
 from . import scanLMS
 
+import logging
+
 class LMSQuery(object):
     def __init__(self, host=None, port=None, player_name=None, player_id=None, lms_servers=[]):
         self.lms_servers = lms_servers
