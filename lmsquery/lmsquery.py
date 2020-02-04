@@ -28,7 +28,7 @@ class LMSQuery(object):
             lms_servers = scanLMS.scanLMS()
         if not lms_servers:
             logging.warning('no servers found on local network')
-            lms_servers.append({'host': const.LMS_HOST, 'port': const.LMS_PORT})
+            lms_servers.append({'host': None, 'port': const.LMS_PORT})
         self._lms_servers = lms_servers
     
     @property
@@ -49,10 +49,14 @@ class LMSQuery(object):
     def player_name(self, player_name):
         if player_name:
             self._player_name = player_name
-            for p in self.get_players():
-                if 'name' in p and 'playerid' in p:
-                    if p['name'] == player_name:
-                        self.player_id = p['playerid']
+            # only try to get players if there is a host set
+            if self.servers['host']:
+                for p in self.get_players():
+                    if 'name' in p and 'playerid' in p:
+                        if p['name'] == player_name:
+                            self.player_id = p['playerid']
+            else:
+                self.player_id = None
         else:
             self._player_name = None
     
