@@ -50,7 +50,7 @@ class LMSQuery(object):
         if player_name:
             self._player_name = player_name
             # only try to get players if there is a host set
-            if self.servers['host']:
+            if self.lms_servers['host']:
                 for p in self.get_players():
                     if 'name' in p and 'playerid' in p:
                         if p['name'] == player_name:
