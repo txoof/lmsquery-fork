@@ -3,7 +3,7 @@
 # coding: utf-8
 
 
-# In[ ]:
+# In[2]:
 
 
 #get_ipython().run_line_magic('alias', 'nbconvert nbconvert ./lmsquery.ipynb')
