@@ -24,7 +24,10 @@
 
 import socket
 import logging
-from . import const
+try:
+    from . import const
+except ImportError as e:
+    import const
 
 
 

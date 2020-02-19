@@ -1,15 +1,48 @@
+#!/usr/bin/env python
+#!/usr/bin/env python
+# coding: utf-8
+
+
+# In[ ]:
+
+
+#get_ipython().run_line_magic('alias', 'nbconvert nbconvert ./lmsquery.ipynb')
+#get_ipython().run_line_magic('nbconvert', '')
+
+
+
+
+# In[ ]:
+
+
 import requests
 
 import json
 import datetime
 
-from . import const
-from . import scanLMS
+# from . import const
+# from . import scanLMS
+
+try:
+    from . import const
+except ImportError as e:
+    import const
+    
+try:
+    from . import scanLMS
+except ImportError as e:
+    import scanLMS
 
 import logging
 
+
+
+
+# In[ ]:
+
+
 class LMSQuery(object):
-    def __init__(self, host=None, port=None, player_name=None, player_id=None, lms_servers=[]):
+    def __init__(self, host=None, port=None, player_name=None, player_id=None, lms_servers=None):
         self.lms_servers = lms_servers
         self.host = host
         self.port = port
@@ -27,6 +60,7 @@ class LMSQuery(object):
         if not lms_servers:
             lms_servers = scanLMS.scanLMS()
         if not lms_servers:
+            lms_servers = []
             logging.warning('no servers found on local network')
             lms_servers.append({'host': None, 'port': const.LMS_PORT})
         self._lms_servers = lms_servers
@@ -49,15 +83,23 @@ class LMSQuery(object):
     def player_name(self, player_name):
         if player_name:
             self._player_name = player_name
+            # set player id if at least one host was found
+            for p in self.get_players():
+                if 'name' in p and 'playerid' in p:
+                    if p['name'] == player_name:
+                        logging.debug(f'found player "{player_name}" on server: {self.host}')
+                        self.player_id = p['playerid']
+                    
+            
             # only try to get players if there is a host set
-            for each in self.lms_servers:
-                if self.lms_servers[each]['host']:
-                    for p in self.get_players():
-                        if 'name' in p and 'playerid' in p:
-                            if p['name'] == player_name:
-                                self.player_id = p['playerid']
-                else:
-                    self.player_id = None
+#             for each in self.lms_servers:
+#                 if self.lms_servers[each]['host']:
+#                     for p in self.get_players():
+#                         if 'name' in p and 'playerid' in p:
+#                             if p['name'] == player_name:
+#                                 self.player_id = p['playerid']
+#                 else:
+#                     self.player_id = None
         else:
             self._player_name = None
     
@@ -69,6 +111,7 @@ class LMSQuery(object):
     def host(self, host):
         if not host:
             host = self.lms_servers[0]['host']
+            logging.debug(f'setting LMS Server to first found: {host}')
         self._host = host     
             
     @property
@@ -350,3 +393,5 @@ class LMSQuery(object):
         players = self.get_players()
         for player in players:
             self.display(player['playerid'], line1, line2, duration)
+
+
