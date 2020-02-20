@@ -3,7 +3,7 @@
 # coding: utf-8
 
 
-# In[2]:
+# In[4]:
 
 
 #get_ipython().run_line_magic('alias', 'nbconvert nbconvert ./lmsquery.ipynb')
@@ -12,7 +12,7 @@
 
 
 
-# In[ ]:
+# In[5]:
 
 
 import requests
@@ -23,15 +23,12 @@ import datetime
 # from . import const
 # from . import scanLMS
 
+import socket
+
 try:
     from . import const
 except ImportError as e:
     import const
-    
-try:
-    from . import scanLMS
-except ImportError as e:
-    import scanLMS
 
 import logging
 
@@ -39,6 +36,14 @@ import logging
 
 
 # In[ ]:
+
+
+
+
+
+
+
+# In[6]:
 
 
 class LMSQuery(object):
@@ -58,7 +63,9 @@ class LMSQuery(object):
     @lms_servers.setter
     def lms_servers(self, lms_servers):
         if not lms_servers:
-            lms_servers = scanLMS.scanLMS()
+#             lms_servers = scanLMS.scanLMS()
+            # scan the network for lms servers
+            lms_servers = self.scanLMS()
         if not lms_servers:
             lms_servers = []
             logging.warning('no servers found on local network')
@@ -89,7 +96,7 @@ class LMSQuery(object):
                     if p['name'] == player_name:
                         logging.debug(f'found player "{player_name}" on server: {self.host}')
                         self.player_id = p['playerid']
-                    
+                
             
             # only try to get players if there is a host set
 #             for each in self.lms_servers:
@@ -123,7 +130,58 @@ class LMSQuery(object):
         if not port:
             port = self.lms_servers[0]['port']
         self._port = port
-        
+
+    def scanLMS(self):
+        '''Search local network for Logitech Media Servers
+
+        Based on netdisco/lms.py by cxlwill - https://github.com/cxlwill
+
+        Args:
+          None
+
+        Returns:
+          list: Dictionary of LMS Server IP and listen ports
+
+        '''
+        lmsIP  = '<broadcast>'
+    #     lmsPort = 3483
+        lmsPort = const.LMS_BRDCST_PORT
+    #     lmsMsg = b'eJSON\0'
+        lmsMsg = const.LMS_BRDCST_MSG
+    #     lmsTimeout = 2
+        # search for servers unitl timeout expires
+        lmsTimeout = const.LMS_BRDCST_TIMEOUT
+
+        entries = []
+
+        mySocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        mySocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        mySocket.settimeout(lmsTimeout)
+        mySocket.bind(('', 0))
+        logging.debug(f'searching for servers for {lmsTimeout} seconds')
+        try:
+            mySocket.sendto(lmsMsg, (lmsIP, lmsPort))
+            while True: # loop until the timeout expires
+                try:
+                    data, address = mySocket.recvfrom(1024) # read 1024 bytes from the socket
+                    if data and address:
+                        port = None
+                        if data.startswith(b'EJSON'):
+                            position = data.find(b'N')
+                            length = int(data[position+1:position+2].hex())
+                            port = int(data[position+2:position+2+length])
+                            entries.append({'host': address[0], 'port': port})
+
+                except socket.timeout:
+                    if len(entries) < 1:
+                        logging.warning(f'server search timed out after {lmsTimeout} seconds with no results')
+                    break            
+                except OSError as e:
+                    logging.error(f'error opening socket: {e}')
+        finally:
+            mySocket.close()
+        return(entries)
+
         
 ###############################################################################
 # Generic query
@@ -393,5 +451,13 @@ class LMSQuery(object):
         players = self.get_players()
         for player in players:
             self.display(player['playerid'], line1, line2, duration)
+
+
+
+
+# In[ ]:
+
+
+
 
 
