@@ -3,7 +3,7 @@
 # coding: utf-8
 
 
-# In[2]:
+# In[14]:
 
 
 #get_ipython().run_line_magic('alias', 'nbconvert nbconvert ./lmsquery.ipynb')
@@ -12,7 +12,7 @@
 
 
 
-# In[1]:
+# In[13]:
 
 
 import requests
@@ -38,8 +38,8 @@ import logging
 # In[7]:
 
 
-logger = logging.getLogger(__name__)
-logger.root.setLevel('DEBUG')
+# logger = logging.getLogger(__name__)
+# logger.root.setLevel('DEBUG')
 
 
 
@@ -455,29 +455,5 @@ class LMSQuery(object):
         players = self.get_players()
         for player in players:
             self.display(player['playerid'], line1, line2, duration)
-
-
-
-
-# In[11]:
-
-
-l = LMSQuery()
-
-
-
-
-# In[12]:
-
-
-l.scanLMS(10)
-
-
-
-
-# In[ ]:
-
-
-
 
 
