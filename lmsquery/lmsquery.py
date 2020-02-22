@@ -3,7 +3,7 @@
 # coding: utf-8
 
 
-# In[4]:
+# In[2]:
 
 
 #get_ipython().run_line_magic('alias', 'nbconvert nbconvert ./lmsquery.ipynb')
@@ -12,7 +12,7 @@
 
 
 
-# In[5]:
+# In[1]:
 
 
 import requests
@@ -35,15 +35,16 @@ import logging
 
 
 
-# In[ ]:
+# In[7]:
+
+
+logger = logging.getLogger(__name__)
+logger.root.setLevel('DEBUG')
 
 
 
 
-
-
-
-# In[6]:
+# In[10]:
 
 
 class LMSQuery(object):
@@ -131,13 +132,13 @@ class LMSQuery(object):
             port = self.lms_servers[0]['port']
         self._port = port
 
-    def scanLMS(self):
+    def scanLMS(self, timeout=None):
         '''Search local network for Logitech Media Servers
 
         Based on netdisco/lms.py by cxlwill - https://github.com/cxlwill
 
         Args:
-          None
+          timeout (int): timeout seconds
 
         Returns:
           list: Dictionary of LMS Server IP and listen ports
@@ -150,7 +151,10 @@ class LMSQuery(object):
         lmsMsg = const.LMS_BRDCST_MSG
     #     lmsTimeout = 2
         # search for servers unitl timeout expires
-        lmsTimeout = const.LMS_BRDCST_TIMEOUT
+        if timeout:
+            lmsTimeout = timeout
+        else:
+            lmsTimeout = const.LMS_BRDCST_TIMEOUT
 
         entries = []
 
@@ -451,6 +455,22 @@ class LMSQuery(object):
         players = self.get_players()
         for player in players:
             self.display(player['playerid'], line1, line2, duration)
+
+
+
+
+# In[11]:
+
+
+l = LMSQuery()
+
+
+
+
+# In[12]:
+
+
+l.scanLMS(10)
 
 
 
